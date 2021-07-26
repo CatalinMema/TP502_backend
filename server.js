@@ -40,12 +40,11 @@ const Recipe = mangoose.model('recipe', recipeSchema);
 
 
 app.get("/recipes",(req,res)=>{
-    Recipe.find().limit(10).then(recipe => res.json(recipe))
+    Recipe.find().then(recipe => res.json(recipe))
 })
 
 app.get('/recipes/page/:nr_skips',(req,res)=>{
     const skipsElements=req.params.nr_skips;
-    console.log(Number(skipsElements));
     Recipe.find().skip(Number(skipsElements)).limit(10).then(recipe => res.json(recipe))
 })
  
