@@ -42,18 +42,21 @@ const recipeSchema = new mangoose.Schema({
         type: String,
         required: true
     },
+    userEmail:{
+        type: String
+    }
 })
 
 const Recipe = mangoose.model('recipe', recipeSchema);
 
 //routes for recipes
-app.get("/recipes",(req,res)=>{
-    Recipe.find().then(recipe => res.json(recipe))
+app.get("/recipes/:email",(req,res)=>{
+    Recipe.find({"userEmail" : req.params.email}).then(recipe => res.json(recipe))
 })
 
-app.get('/recipes/page/:nr_skips',(req,res)=>{
+app.get('/recipes/:email/page/:nr_skips',(req,res)=>{
     const skipsElements=req.params.nr_skips;
-    Recipe.find().skip(Number(skipsElements)).limit(10).then(recipe => res.json(recipe))
+    Recipe.find({"userEmail" : req.params.email}).skip(Number(skipsElements)).limit(10).then(recipe => res.json(recipe))
 })
 
 app.get('/recipes/recipe/:_id',(req,res)=>{
@@ -64,7 +67,8 @@ app.post("/recipes",async (req,res) => {
         title:req.body.title,
         ingredients:req.body.ingredients,
         time:req.body.time,
-        preparation_mode:req.body.preparation_mode
+        preparation_mode:req.body.preparation_mode,
+        userEmail:req.body.userEmail
     });
     try {
         await newRecipe.save();
@@ -126,6 +130,7 @@ app.post("/authentication/signin", async (req,res)=>{
         res.json({
             message:"You are log in",
             auth: true,
+            emailOfUser:email
         })
     }
     else{
@@ -144,6 +149,7 @@ app.post("/authentication/signup",(req,res)=>{
       res.json({
           message:"SignUp Succes",
           auth:true,
+          emailOfUser:req.body.email
       });
   })
   .catch((error)=>{
