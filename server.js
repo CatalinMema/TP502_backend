@@ -47,8 +47,10 @@ app.get('/recipes/page/:nr_skips',(req,res)=>{
     const skipsElements=req.params.nr_skips;
     Recipe.find().skip(Number(skipsElements)).limit(10).then(recipe => res.json(recipe))
 })
- 
 
+app.get('/recipes/recipe/:_id',(req,res)=>{
+    Recipe.findById(req.params._id).then(recipe => res.json(recipe));
+})
 app.post("/recipes",async (req,res) => {
     const newRecipe = new Recipe({
         title:req.body.title,
