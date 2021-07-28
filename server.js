@@ -103,6 +103,8 @@ userSchema.statics.findUser = async function (email,password){
     }
     return user;
 }
+
+
 //before save
 userSchema.pre('save', async function(next){
     const user = this;
@@ -115,11 +117,11 @@ userSchema.pre('save', async function(next){
 const User = mangoose.model('user', userSchema);
 
 //routes for user
-app.get('/user',(req,res)=>{
-    res.json({
-        msg:'hello'
-    })
-})
+// app.get('/user/:email',(req,res)=>{
+//     res.json({
+//         msg:req.params.email
+//     })
+// })
 
 app.post("/authentication/signin", async (req,res)=>{
     const email = req.body.email;
@@ -130,13 +132,15 @@ app.post("/authentication/signin", async (req,res)=>{
         res.json({
             message:"You are log in",
             auth: true,
-            emailOfUser:email
+            emailOfUser:email,
+            emailS: user.email
         })
     }
     else{
         res.json({
             message:"Not able to log you in",
             auth:false,
+            userEmail:email
         })
     }
 })
@@ -160,12 +164,14 @@ app.post("/authentication/signup",(req,res)=>{
   })
 })
 
-app.get("/authentication/signedin",(req,res)=>{
+app.get("/authentication/signedin/:ems", async (req,res)=>{
+    console.log(req.session.user);
+    console.log(User.findById(req.session.user))
     if(req.session.user){
         return res.json({
             message:'Signed in',
             auth: true,
-
+            emailOfUser:`greate`
         });
     }
     return res.json({
@@ -173,13 +179,27 @@ app.get("/authentication/signedin",(req,res)=>{
         auth:false,
     })
 })
-
+app.get("/user/email", async (req,res)=>{
+    //  const nUser=User.find({"userEmail" : req.params.email});
+    //  console.log(nUser)
+    if(req.session.user){
+    const nuser= await User.findById(req.session.user);
+    console.log('nuser')
+    console.log(nuser)
+    
+    return res.json({
+        emailAuth:nuser?.email,
+    });}
+    });
 app.get("/authentication/signout",(req,res)=>{
     req.session.destroy();
     res.json({
         auth:false,
     });
 });
+
+
+
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
