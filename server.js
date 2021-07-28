@@ -5,12 +5,17 @@ const session = require("express-session");
 const port = 5000;
 const app = express();
 app.use(express.json())
+
+//Express session
 app.use(session({
     secret: 'keyboard cat',
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false }
   }))
+
+
+//connectTo MongoDb
 const connectDb = async() => {
     try{
         await mangoose.connect("mongodb+srv://user1:user1@tp502.lob2q.mongodb.net/cookbook?retryWrites=true&w=majority", {
@@ -23,6 +28,8 @@ const connectDb = async() => {
     }
 }
 connectDb();
+
+//Recipe
 
 //schema for recipe
 const recipeSchema = new mangoose.Schema({
@@ -80,7 +87,9 @@ app.post("/recipes",async (req,res) => {
     //newRecipe.save().then(recipe=> res.json(recipe));
 })
   
-//schma for user
+
+//User
+//schema for user
 const userSchema = new mangoose.Schema({
     email:{
         type: String,
@@ -104,7 +113,7 @@ userSchema.statics.findUser = async function (email,password){
     return user;
 }
 
-
+//password encryption before saving to db
 //before save
 userSchema.pre('save', async function(next){
     const user = this;
@@ -146,10 +155,9 @@ app.post("/authentication/signin", async (req,res)=>{
 })
 
 app.post("/authentication/signup",(req,res)=>{
-    console.log(req.body)
     const user = new User(req.body)
     req.session.user=user._id;
-  user.save().then((result)=>{
+  user.save().then(()=>{
       res.json({
           message:"SignUp Succes",
           auth:true,
@@ -185,9 +193,6 @@ app.get("/authentication/signout",(req,res)=>{
         auth:false,
     });
 });
-
-
-
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
