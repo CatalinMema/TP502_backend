@@ -164,14 +164,13 @@ app.post("/authentication/signup",(req,res)=>{
   })
 })
 
-app.get("/authentication/signedin/:ems", async (req,res)=>{
-    console.log(req.session.user);
-    console.log(User.findById(req.session.user))
+app.get("/authentication/signedin", async (req,res)=>{
     if(req.session.user){
+        const nuser= await User.findById(req.session.user);
         return res.json({
             message:'Signed in',
             auth: true,
-            emailOfUser:`greate`
+            emailAuth:nuser?.email,
         });
     }
     return res.json({
@@ -179,18 +178,7 @@ app.get("/authentication/signedin/:ems", async (req,res)=>{
         auth:false,
     })
 })
-app.get("/user/email", async (req,res)=>{
-    //  const nUser=User.find({"userEmail" : req.params.email});
-    //  console.log(nUser)
-    if(req.session.user){
-    const nuser= await User.findById(req.session.user);
-    console.log('nuser')
-    console.log(nuser)
-    
-    return res.json({
-        emailAuth:nuser?.email,
-    });}
-    });
+
 app.get("/authentication/signout",(req,res)=>{
     req.session.destroy();
     res.json({
